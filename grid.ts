@@ -84,6 +84,10 @@ class Grid<T> {
     return Grid.fromPos(pos);
   };
 
+  get = (x: number, y: number): T => {
+    return this.data.get(this.toPos(x, y));
+  };
+
   print = (defaultalue?: string): string[] => {
     const out = [];
     for (let y = this.minY; y < this.maxY + 1; y++) {
@@ -114,6 +118,14 @@ class Grid<T> {
     }
 
     return neighbours;
+  };
+
+  forEach = (callback: (x: number, y: number) => void): void => {
+    for (let y = 0; y < this.maxY + 1; y++) {
+      for (let x = 0; x < this.maxX + 1; x++) {
+        callback(x, y);
+      }
+    }
   };
 }
 
