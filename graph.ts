@@ -44,7 +44,7 @@ const bfs = (start: string, graph: Map<string, Array<string>>): Set<string> => {
   visited.add(start);
 
   while (queue.length > 0) {
-    const cur = queue.pop();
+    const cur = queue.shift();
     for (const neigh of graph.get(cur) || []) {
       if (!visited.has(neigh)) {
         queue.push(neigh);
