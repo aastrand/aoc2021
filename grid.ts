@@ -46,14 +46,19 @@ class Grid<T> {
     this.maxY = maxY;
   }
 
-  static parseGrid = (lines: string[]): Grid<string> => {
-    const data: Map<string, string> = new Map();
+  static parseGrid<S>(lines: string[], type?): Grid<S> {
+    const data: Map<string, S> = new Map();
     let maxX = 0;
     let maxY = 0;
 
     for (let y = 0; y < lines.length; y++) {
       for (let x = 0; x < lines[y].length; x++) {
-        data.set(Grid.toPos(x, y), lines[y][x]);
+        let value: unknown = lines[y][x];
+        if (type) {
+          value = type(value);
+        }
+
+        data.set(Grid.toPos(x, y), <S>value);
 
         if (maxX < x) {
           maxX = x;
@@ -65,7 +70,7 @@ class Grid<T> {
     }
 
     return new Grid(data, 0, maxX, 0, maxY);
-  };
+  }
 
   static toPos = (x: number, y: number): string => {
     return `${x},${y}`;
@@ -88,15 +93,23 @@ class Grid<T> {
     return this.data.get(this.toPos(x, y));
   };
 
-  print = (defaultalue?: string): string[] => {
+  set = (x: number, y: number, value: T): void => {
+    this.data.set(this.toPos(x, y), value);
+  };
+
+  print = (defaultalue?: T): string[] => {
     const out = [];
     for (let y = this.minY; y < this.maxY + 1; y++) {
       const line = [];
       for (let x = this.minX; x < this.maxX + 1; x++) {
         const pos = Grid.toPos(x, y);
-        const point = this.data.get(pos) || defaultalue;
+        let point = this.data.get(pos);
 
-        if (point) {
+        if (point === undefined && defaultalue) {
+          point = defaultalue;
+        }
+
+        if (point !== undefined) {
           line.push(point);
         }
       }
@@ -107,11 +120,21 @@ class Grid<T> {
     return out;
   };
 
-  getAdjecent = (x: number, y: number): Array<string> => {
+  getAdjecentPositions = (x: number, y: number): Array<[number, number]> => {
     const neighbours = [];
 
     for (const offset of this.adjecent) {
-      const chr = this.data.get(Grid.toPos(x + offset[0], y + offset[1]));
+      neighbours.push([x + offset[0], y + offset[1]]);
+    }
+
+    return neighbours;
+  };
+
+  getAdjecent = (x: number, y: number): Array<string> => {
+    const neighbours = [];
+
+    for (const pos of this.getAdjecentPositions(x, y)) {
+      const chr = this.get(pos[0], pos[1]);
       if (chr) {
         neighbours.push(chr);
       }
