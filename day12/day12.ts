@@ -1,5 +1,6 @@
 import { strict as assert } from "assert";
 import { readFileSync } from "fs";
+import { allPaths } from "../graph";
 
 const parse = (file: string): string[] =>
   readFileSync(file, "utf-8").trim().split("\n");
@@ -31,55 +32,39 @@ const getGraph = (lines: string[]): Map<string, Array<string>> => {
   return graph;
 };
 
-const traverse = (
-  cur: string,
-  end: string,
-  graph: Map<string, Array<string>>,
-  visited: Map<string, number>,
-  shouldAddSmall: boolean,
-  path: Array<string>,
-  paths: Array<Array<string>>
-): Array<Array<string>> => {
-  path.push(cur);
-  visited.set(cur, (visited.get(cur) || 0) + 1);
-
-  let canAddSmall = true;
-  visited.forEach((value, node) => {
-    if (!isUpper(node) && value > 1) {
-      canAddSmall = false;
-    }
-  });
-
-  if (cur === end) {
-    paths.push([...path]);
-  } else {
-    for (const n of graph.get(cur) || []) {
-      if (isUpper(n)) {
-        traverse(n, end, graph, visited, shouldAddSmall, path, paths);
-      } else if (n !== "start" && !visited.get(n)) {
-        traverse(n, end, graph, visited, shouldAddSmall, path, paths);
-      } else if (n !== "start" && shouldAddSmall && canAddSmall) {
-        traverse(n, end, graph, visited, shouldAddSmall, path, paths);
-      }
-    }
-  }
-
-  path.pop();
-  visited.set(cur, visited.get(cur) - 1);
-
-  return paths;
-};
-
 const solve1 = (file: string): number => {
   const graph = getGraph(parse(file));
-  const paths = traverse("start", "end", graph, new Map(), false, [], []);
+
+  const visited: Map<string, number> = new Map();
+  const shouldVisit = (n: string, v: Map<string, number>): boolean => {
+    return isUpper(n) || (n !== "start" && !v.get(n));
+  };
+
+  const paths = allPaths("start", "end", graph, visited, shouldVisit, [], []);
 
   return paths.length;
 };
 
 const solve2 = (file: string): number => {
   const graph = getGraph(parse(file));
-  const paths = traverse("start", "end", graph, new Map(), true, [], []);
+
+  const visited: Map<string, number> = new Map();
+  const shouldVisit = (n: string, v: Map<string, number>): boolean => {
+    let canAddSmall = true;
+    v.forEach((value, node) => {
+      if (!isUpper(node) && value > 1) {
+        canAddSmall = false;
+      }
+    });
+
+    return (
+      isUpper(n) ||
+      (n !== "start" && !v.get(n)) ||
+      (n !== "start" && canAddSmall)
+    );
+  };
+
+  const paths = allPaths("start", "end", graph, visited, shouldVisit, [], []);
 
   return paths.length;
 };

@@ -176,4 +176,40 @@ const findShortestPathWeighted = (
 
   return results;
 };
-export { bfs, bfsShortest, Edge, findShortestPathWeighted, parseGraph };
+
+const allPaths = (
+  cur: string,
+  end: string,
+  graph: Map<string, Array<string>>,
+  visited: Map<string, number>,
+  shouldVisit: (n: string, v: Map<string, number>) => boolean,
+  path: Array<string>,
+  paths: Array<Array<string>>
+): Array<Array<string>> => {
+  path.push(cur);
+  visited.set(cur, (visited.get(cur) || 0) + 1);
+
+  if (cur === end) {
+    paths.push([...path]);
+  } else {
+    for (const n of graph.get(cur) || []) {
+      if (shouldVisit(n, visited)) {
+        allPaths(n, end, graph, visited, shouldVisit, path, paths);
+      }
+    }
+  }
+
+  path.pop();
+  visited.set(cur, visited.get(cur) - 1);
+
+  return paths;
+};
+
+export {
+  allPaths,
+  bfs,
+  bfsShortest,
+  Edge,
+  findShortestPathWeighted,
+  parseGraph,
+};
