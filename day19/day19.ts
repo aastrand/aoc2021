@@ -242,7 +242,7 @@ const convert = (scanners: Scanner[]): void => {
   }
 };
 
-const solve1 = (file: string): number => {
+const solve = (file: string): [number, number] => {
   const input = readFileSync(file, "utf-8").trim().split("\n\n");
   const scanners = parse(input);
 
@@ -254,15 +254,6 @@ const solve1 = (file: string): number => {
       seen.add(`${beacon.coord[0]},${beacon.coord[1]},${beacon.coord[2]}`);
     }
   }
-
-  return seen.size;
-};
-
-const solve2 = (file: string): number => {
-  const input = readFileSync(file, "utf-8").trim().split("\n\n");
-  const scanners = parse(input);
-
-  convert(scanners);
 
   let max = 0;
   for (const s1 of scanners) {
@@ -277,7 +268,7 @@ const solve2 = (file: string): number => {
     }
   }
 
-  return max;
+  return [seen.size, max];
 };
 
 const rots = buildRotations([1, 2, 3]);
@@ -333,8 +324,10 @@ assert(scanner.beacons[5].rots[7].coord[0] === 0);
 assert(scanner.beacons[5].rots[7].coord[1] === 7);
 assert(scanner.beacons[5].rots[7].coord[2] === -8);
 
-assert(solve1("./example.txt") === 79);
-console.log(solve1("./input.txt"));
+const example = solve("./example.txt");
+assert(example[0] === 79);
+assert(example[1] === 3621);
 
-assert(solve2("./example.txt") === 3621);
-console.log(solve2("./input.txt"));
+const puzzle = solve("./input.txt");
+console.log(puzzle[0]);
+console.log(puzzle[1]);
