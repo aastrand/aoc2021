@@ -20,16 +20,15 @@ class Grid<T> {
   ];
 
   adjecent: Array<[number, number]> = [
+    [-1, 1], // top left
+    [0, 1], // top middle
+    [1, 1], // top right
+
     [-1, 0], // left
     [1, 0], // right
 
-    [1, -1], // bottom right
-    [0, -1], // bottom middle
     [-1, -1], // bottom left
-
-    [1, 1], // top right
-    [0, 1], // top middle
-    [-1, 1], // top left
+    [0, -1], // bottom middle
   ];
 
   constructor(
@@ -94,6 +93,19 @@ class Grid<T> {
   };
 
   set = (x: number, y: number, value: T): void => {
+    if (x < this.minX) {
+      this.minX = x;
+    }
+    if (x > this.maxX) {
+      this.maxX = x;
+    }
+    if (y < this.minY) {
+      this.minY = y;
+    }
+    if (y > this.maxY) {
+      this.maxY = y;
+    }
+
     this.data.set(this.toPos(x, y), value);
   };
 
@@ -144,8 +156,8 @@ class Grid<T> {
   };
 
   forEach = (callback: (x: number, y: number) => void): void => {
-    for (let y = 0; y < this.maxY + 1; y++) {
-      for (let x = 0; x < this.maxX + 1; x++) {
+    for (let y = this.minY - 1; y < this.maxY + 1; y++) {
+      for (let x = this.minX - 1; x < this.maxX + 1; x++) {
         callback(x, y);
       }
     }
