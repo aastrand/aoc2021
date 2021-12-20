@@ -15,9 +15,12 @@ interface Beacon {
 
 interface Scanner {
   id: number;
+  distance?: [number, number, number];
   beacons: Beacon[];
 }
 
+// Used this for early debugging
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const toString = (scanner: Scanner, rot?: number): string => {
   const s = [];
 
@@ -142,375 +145,139 @@ const parse = (input: string[]): Array<Scanner> => {
     scanners.push({ id, beacons });
   }
 
-  /*for (const scanner of scanners) {
-    console.log(toString(scanner));
-    for (const beacon of scanner.beacons) {
-      for (const r of beacon.rots) {
-        //console.log(r.x + " " + r.y + " " + r.z);
-        console.log(r.coord);
-      }
-      console.log("###");
-    }
-    console.log();
-  }*/
-
   return scanners;
 };
 
-const solve1 = (file: string): number => {
-  const input = readFileSync(file, "utf-8").trim().split("\n\n");
-  const scanners = parse(input);
+const checkOverlap = (
+  s1: Scanner,
+  s2: Scanner
+): [[number, number, number], number] | null => {
+  for (let rj = 0; rj < ROTATIONS.length; rj++) {
+    const mapping = new Map();
+    for (const b11 of s1.beacons) {
+      for (const b12 of s1.beacons) {
+        if (b11 !== b12) {
+          for (const b21 of s2.beacons) {
+            for (const b22 of s2.beacons) {
+              if (b21 !== b22) {
+                const dx1 = b11.coord[0] - b12.coord[0];
+                const dy1 = b11.coord[1] - b12.coord[1];
+                const dz1 = b11.coord[2] - b12.coord[2];
 
-  const overlaps: Map<number, Set<number>> = new Map();
-  const translations = new Map();
-  for (let i = 0; i < scanners.length; i++) {
-    for (let j = 0; j < scanners.length; j++) {
-      if (i !== j) {
-        const s1 = scanners[i];
-        const s2 = scanners[j];
-        let found = false;
+                const dx2 = b21.rots[rj].coord[0] - b22.rots[rj].coord[0];
+                const dy2 = b21.rots[rj].coord[1] - b22.rots[rj].coord[1];
+                const dz2 = b21.rots[rj].coord[2] - b22.rots[rj].coord[2];
 
-        for (let rj = 0; rj < ROTATIONS.length && !found; rj++) {
-          const mapping = new Map();
-          for (const b11 of s1.beacons) {
-            for (const b12 of s1.beacons) {
-              if (b11 !== b12) {
-                for (const b21 of s2.beacons) {
-                  for (const b22 of s2.beacons) {
-                    if (b21 !== b22) {
-                      const dx1 = b11.coord[0] - b12.coord[0];
-                      const dy1 = b11.coord[1] - b12.coord[1];
-                      const dz1 = b11.coord[2] - b12.coord[2];
-
-                      const dx2 = b21.rots[rj].coord[0] - b22.rots[rj].coord[0];
-                      const dy2 = b21.rots[rj].coord[1] - b22.rots[rj].coord[1];
-                      const dz2 = b21.rots[rj].coord[2] - b22.rots[rj].coord[2];
-
-                      if (dx1 === dx2 && dy1 === dy2 && dz1 === dz2) {
-                        /*mapping.set(
-                          `${b11.coord[0]},${b11.coord[1]},${b11.coord[2]}`,
-                          [b21.rots[rj].coord, rj]
-                        );
-                        mapping.set(
-                          `${b12.coord[0]},${b12.coord[1]},${b12.coord[2]}`,
-                          [b22.rots[rj].coord, rj]
-                        );*/
-                        mapping.set(
-                          `${b21.rots[rj].coord[0]},${b21.rots[rj].coord[1]},${b21.rots[rj].coord[2]}`,
-                          [
-                            `${b11.coord[0]},${b11.coord[1]},${b11.coord[2]}`,
-                            rj,
-                          ]
-                        );
-                        mapping.set(
-                          `${b22.rots[rj].coord[0]},${b22.rots[rj].coord[1]},${b22.rots[rj].coord[2]}`,
-                          [
-                            `${b12.coord[0]},${b12.coord[1]},${b12.coord[2]}`,
-                            rj,
-                          ]
-                        );
-                      }
-                    }
-                  }
+                if (dx1 === dx2 && dy1 === dy2 && dz1 === dz2) {
+                  mapping.set(
+                    `${b21.rots[rj].coord[0]},${b21.rots[rj].coord[1]},${b21.rots[rj].coord[2]}`,
+                    [`${b11.coord[0]},${b11.coord[1]},${b11.coord[2]}`, rj]
+                  );
+                  mapping.set(
+                    `${b22.rots[rj].coord[0]},${b22.rots[rj].coord[1]},${b22.rots[rj].coord[2]}`,
+                    [`${b12.coord[0]},${b12.coord[1]},${b12.coord[2]}`, rj]
+                  );
                 }
               }
             }
-          }
-
-          if (mapping.size >= 12) {
-            console.log(`${i},${j}`);
-            console.log(mapping);
-            mapping.forEach((value, key) => {
+            if (mapping.size >= 12) {
+              const key = mapping.keys().next().value;
+              const value = mapping.get(key);
               const b1 = value[0].split(",").map(Number);
               const b2 = key.split(",").map(Number);
-              console.log([b1[0] - b2[0], b1[1] - b2[1], b1[2] - b2[2]]);
-
               const r = value[1];
-              /*const b3 = rotate(
-                b1,
-                ROTATIONS[r][0],
-                ROTATIONS[r][1],
-                ROTATIONS[r][2]
-              );*/
-              /*console.log(b1);
-              console.log(b2);
-              console.log(b3);
-              console.log(
-                b1[0] - b2[0] + " " + (b1[1] - b2[1]) + " " + (b1[2] - b2[2])
-              );
-              console.log();*/
-              translations.set(`${i},${j}`, [
-                [b1[0] - b2[0], b1[1] - b2[1], b1[2] - b2[2]],
-                mapping,
-                r,
-              ]);
-
-              let neighbour = overlaps.get(i);
-              if (!neighbour) {
-                neighbour = new Set();
-                overlaps.set(i, neighbour);
-              }
-              neighbour.add(j);
-            });
-
-            found = true;
+              return [[b1[0] - b2[0], b1[1] - b2[1], b1[2] - b2[2]], r];
+            }
           }
         }
       }
     }
   }
 
-  console.log(translations);
-  console.log(overlaps);
+  return null;
+};
 
-  const q = [];
-  q.push(0);
-  const visited = new Set();
-  visited.add(0);
-  const path = [];
+const convert = (scanners: Scanner[]): void => {
+  const converted: Map<number, Scanner> = new Map();
+  converted.set(scanners[0].id, scanners[0]);
+  // eslint-disable-next-line no-param-reassign
+  scanners[0].distance = [0, 0, 0];
+  const checked = new Set();
 
-  while (q.length !== 0) {
-    const cur = q.shift();
-    const neighbours = overlaps.get(cur) || [];
-    for (const n of neighbours) {
-      if (!visited.has(n)) {
-        const edge = `${cur},${n}`;
-        path.push([edge, translations.get(edge)[2]]);
-        q.push(n);
-        visited.add(n);
+  let found = false;
+  while (converted.size !== scanners.length) {
+    // resorted to this algo of keeping a set bases, a nice tip from u/Multipl
+    found = false;
+    for (let i = 0; i < scanners.length && !found; i++) {
+      if (!converted.get(i)) {
+        const candidate = scanners[i];
+
+        for (const j of converted.keys()) {
+          const base = scanners[j];
+          const keys = [`${i},${j}`, `${j},${i}`];
+          if (!checked.has(keys[0]) && !checked.has(keys[1])) {
+            checked.add(keys[0]);
+            checked.add(keys[1]);
+            const res = checkOverlap(base, candidate);
+
+            if (res !== null) {
+              const diff = res[0];
+              const rotation = res[1];
+
+              for (const beacon of candidate.beacons) {
+                beacon.coord[0] = beacon.rots[rotation].coord[0] + diff[0];
+                beacon.coord[1] = beacon.rots[rotation].coord[1] + diff[1];
+                beacon.coord[2] = beacon.rots[rotation].coord[2] + diff[2];
+              }
+
+              converted.set(i, candidate);
+              candidate.distance = diff;
+              found = true;
+              break;
+            }
+          }
+        }
       }
     }
   }
+};
 
-  console.log(path);
-  const f1 = translations.get("0,1")[0];
-  const f2 = translations.get("1,4")[0];
-  for (const b of scanners[0].beacons) {
-    console.log(b.coord);
-  }
-  console.log("0,1");
-  console.log(translations.get("0,1"));
-  console.log("1,4");
-  console.log(translations.get("1,4"));
+const solve1 = (file: string): number => {
+  const input = readFileSync(file, "utf-8").trim().split("\n\n");
+  const scanners = parse(input);
 
-  // -20, -1133, 1061
-  const a: [number, number, number] = [68, -1246, -43];
-  const b: [number, number, number] = [88, 113, -1104];
-  let rotated = rotate(b, ROTATIONS[8][0], ROTATIONS[8][1], ROTATIONS[8][2]);
-  console.log(rotated);
-  console.log(b);
+  convert(scanners);
 
-  console.log([rotated[0] + a[0], rotated[0] + a[1], rotated[2] + a[2]]);
-
-  // Following this process, scanner 2 must be at 1105,-1205,1229 (relative to scanner 0)
-
-  // 1105,-1205,1229
-  const c: [number, number, number] = [168, -1125, 72];
-  let rotated2 = rotate(c, ROTATIONS[9][0], ROTATIONS[9][1], ROTATIONS[9][2]);
-  /*rotated2 = rotate(
-        rotated2,
-        ROTATIONS[j][0],
-        ROTATIONS[j][1],
-        ROTATIONS[j][2]
-      );*/
-  rotated2 = [rotated2[0] + b[0], rotated2[1] + b[1], rotated2[2] + b[2]];
-  rotated2 = rotate(
-    rotated2,
-    ROTATIONS[8][0],
-    ROTATIONS[8][1],
-    ROTATIONS[8][2]
-  );
-  console.log([rotated2[0] + a[0], rotated2[1] + a[1], rotated2[2] + a[2]]);
-
-  //  and scanner 3 must be at -92,-2380,-20 (relative to scanner 0).
-  const d: [number, number, number] = [160, -1134, -23];
-  for (let i = 0; i < 24; i++) {
-    console.log(i);
-    rotated = rotate(d, ROTATIONS[i][0], ROTATIONS[i][1], ROTATIONS[i][2]);
-    for (let j = 0; j < 24; j++) {
-      console.log(j);
-      rotated2 = rotate(a, ROTATIONS[j][0], ROTATIONS[j][1], ROTATIONS[j][2]);
-      console.log([
-        rotated[0] - rotated2[0],
-        rotated[0] - rotated2[1],
-        rotated[2] - rotated2[2],
-      ]);
+  const seen = new Set();
+  for (const scanner of scanners) {
+    for (const beacon of scanner.beacons) {
+      seen.add(`${beacon.coord[0]},${beacon.coord[1]},${beacon.coord[2]}`);
     }
   }
 
-  /*//  68, -1246, -43
-  // 1 relative to 0:  68, -1246, -43
-  console.log(translations.get("0,1")[0]);
-  // 4 relative to 1:  88, 113, -1104
-  console.log(translations.get("1,4")[0]);
-  // 0 relative to 1 rotated:'
-  // -88 -- 68, 113 -1246, 1104 -43
-  // -88, 113, 1104
-  let rotated = rotate(
-    translations.get("1,4")[0],
-    ROTATIONS[8][0],
-    ROTATIONS[8][1],
-    ROTATIONS[8][2]
-  );
-  console.log(rotated);
-  const transl = [rotated[0] + f1[0], rotated[1] + f1[1], rotated[2] + f1[2]];
-  console.log(transl);
-
-  //-447,-329,318
-  //  for (let i = 0; i < 24; i++) {
-  //  console.log(i);
-  rotated = rotate(
-    [427, 804, 743],
-    ROTATIONS[8][0],
-    ROTATIONS[8][1],
-    ROTATIONS[8][2]
-  );
-  console.log(rotated);
-  console.log(
-    rotated[0] +
-      transl[0] +
-      "," +
-      (rotated[1] + transl[1]) +
-      "," +
-      (rotated[2] + transl[2])
-  );
-
-  console.log("###");
-
-  for (let i = 0; i < 24; i++) {
-    console.log(i);
-    rotated = rotate(
-      translations.get("4,2")[0],
-      ROTATIONS[i][0],
-      ROTATIONS[i][1],
-      ROTATIONS[i][2]
-    );
-    console.log(rotated);
-    let rotated2 = rotate(
-      translations.get("1,4")[0],
-      ROTATIONS[8][0],
-      ROTATIONS[8][1],
-      ROTATIONS[8][2]
-    );
-    console.log(rotated2);
-    console.log(f1);
-    const transl2 = [
-      rotated[0] + rotated2[0] + f1[0],
-      rotated[1] + rotated2[1] + f1[1],
-      rotated[2] + rotated2[2] + f1[2],
-    ];
-    console.log(transl2);
-  }*/
-  /*
-  Following this process, scanner 2 must be at 1105,-1205,1229 (relative to scanner 0)
-
-    '4,2' => [ [ 168, -1125, 72 ],
-    15 ]
-     '1,4' => [ [ 88, 113, -1104 ],
-    9 ], 
- '0,1' => [ [ 68, -1246, -43 ],
-    8 ],
-
- '0,1' => [ [ 68, -1246, -43 ],
-    8 ],
-  '1,0' => [ [ 68, 1246, -43 ],
-    8 ],
-  '1,3' => [ [ 160, -1134, -23 ],
-    0 ],
-  '1,4' => [ [ 88, 113, -1104 ],
-    9 ],
-  '2,4' => [ [ 1125, -168, 72 ],
-    15 ],
-  '3,1' => [ [ -160, 1134, 23 ],
-    0 ],
-  '4,1' => [ [ -1104, -88, 113 ],
-    23 ],
-  '4,2' => [ [ 168, -1125, 72 ],
-    15 ] }
-
-  and scanner 3 must be at -92,-2380,-20 (relative to scanner 0).
-  */
-
-  // }
-  /*for (let i = 0; i < 24; i++) {
-    console.log(i);
-    let rotated = rotate(
-      translations.get("0,1")[0],
-      ROTATIONS[i][0],
-      ROTATIONS[i][1],
-      ROTATIONS[i][2]
-    );
-    console.log(rotated);
-    rotated = rotate(
-      translations.get("1,4")[0],
-      ROTATIONS[i][0],
-      ROTATIONS[i][1],
-      ROTATIONS[i][2]
-    );
-    console.log(rotated);
-  }*/
-
-  // 4 relative to 0: -20,-1133,1061
-  // 1,4: -479,426,660
-  // // -20 --479, 1133 -426, 1061-660
-
-  // hit ska vi i 0: 459,-707,401
-
-  /*const seen = new Set();
-  for (const b of scanners[0].beacons) {
-    seen.add(`${b.coord[0]},${b.coord[1]},${b.coord[2]}`);
-  }
-  console.log(seen);
-
-  for (const b of scanners[1].beacons) {
-    const coord = rotate(
-      b.coord,
-      ROTATIONS[8][0],
-      ROTATIONS[8][1],
-      ROTATIONS[8][2]
-    );
-    const key = `${coord[0]},${coord[1]},${coord[2]}`;
-    //console.log(key);
-    const other = translations.get("0,1")[1].get(key);
-    if (other) {
-      //console.log("translated: " + other[0]);
-      seen.add(other[0]);
-    }
-  }
-  console.log("1,4");
-  console.log(translations.get("1,4"));
-  console.log("0,1");
-  console.log(translations.get("0,1"));
-
-  for (const b of scanners[4].beacons) {
-    let coord = rotate(
-      b.coord,
-      ROTATIONS[9][0],
-      ROTATIONS[9][1],
-      ROTATIONS[9][2]
-    );
-    //coord = rotate(coord, ROTATIONS[8][0], ROTATIONS[8][1], ROTATIONS[8][2]);
-    const key = `${coord[0]},${coord[1]},${coord[2]}`;
-    console.log("key : " + key);
-    const other = translations.get("1,4")[1].get(key);
-    console.log("other: " + other);
-    if (other) {
-      const other2 = translations.get("0,1")[1].get(other[0]);
-      console.log("other2: " + other2);
-      if (other2) {
-        console.log("translated: " + other2[0]);
-        seen.add(other2[0]);
-      }
-    }
-  }
-
-  console.log(seen.size);*/
-
-  return 0;
+  return seen.size;
 };
 
 const solve2 = (file: string): number => {
-  return 0;
+  const input = readFileSync(file, "utf-8").trim().split("\n\n");
+  const scanners = parse(input);
+
+  convert(scanners);
+
+  let max = 0;
+  for (const s1 of scanners) {
+    for (const s2 of scanners) {
+      const distance =
+        Math.abs(s1.distance[0] - s2.distance[0]) +
+        Math.abs(s1.distance[1] - s2.distance[1]) +
+        Math.abs(s1.distance[2] - s2.distance[2]);
+      if (distance > max) {
+        max = distance;
+      }
+    }
+  }
+
+  return max;
 };
 
 const rots = buildRotations([1, 2, 3]);
@@ -569,5 +336,5 @@ assert(scanner.beacons[5].rots[7].coord[2] === -8);
 assert(solve1("./example.txt") === 79);
 console.log(solve1("./input.txt"));
 
-// assert(solve2('./example.txt') === 2);
+assert(solve2("./example.txt") === 3621);
 console.log(solve2("./input.txt"));
