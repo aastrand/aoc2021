@@ -1,0 +1,73 @@
+
+inp w    ; w = a
+add x 13 ; x = 13
+eql x w  ; a == 13 ? x = 1 : x = 0;
+eql x 0  ; x = a == 13 ? 0 : 1
+mul y 0  ; y = 0
+add y w  ; y = a
+add y 10 ; y = a + 10
+mul y x  ; y = x * (a + 10) 
+add z y  ; z =  a != 13 ? (a + 10) : 0
+
+f1(a) = a + 10
+
+inp w    ; w = b
+mul x 0  ; x = 0
+add x z  ; x = a + 10
+mod x 26 ; x = ( a + 10) % 26 // onödigt
+add x 11 ; x = a + 10 + 11
+eql x w  ; b == a + 10 + 11 ? 1 : 0+
+eql x 0  ; b != (a + 10  + 11) ? 1 : 0 // onödigt, x = 1
+mul y 0  ; y = 0
+add y 25 ; y = 25
+mul y x  ; y = 25 
+add y 1  ; y = 26
+mul z y  ; z = (a + 10) * 26
+mul y 0  ; y = 0
+add y w  ; y = b
+add y 16 ; y = b + 16
+mul y x  ; // onödigt
+add z y ; z = ((a + 10) * 26) + (b + 16) =
+
+f
+inp w   ; w = c
+mul x 0 ; x = 0
+add x z ; x = f2(b)
+mod x 26 ; x = f2(b) % 26
+add x 11 ; x = (f2(b) % 26) + 11
+eql x w  ; x = 0
+eql x 0  ; x = 1
+mul y 0  ; y = 0
+add y 25 ; y = 25
+mul y x  ; y = 25
+add y 1  ; y = 26
+mul z y  ; z = f2(b) * 26
+mul y 0  : y = 0
+add y w  ; y = c
+add y 0  
+mul y x
+add z y ; z = f2(b) * 26 + c
+ 
+f3(c) = ((a + 10) * 26) + b + 16) * 26  + c
+
+inp w    ; w = d
+mul x 0  ; x = 0
+add x z  ; x = f3(c)
+mod x 26 ; x = f3(c) % 26
+div z 1  ; 
+add x 10 ; x = (f3(c) % 26) + 10
+eql x w  ; x = 0
+eql x 0  ; x = 1
+mul y 0  ; y = 0
+add y 25 ; y = 25
+mul y x  ; y = 25
+add y 1  ; y = 26
+mul z y  ; z = f3(c) * 26
+mul y 0  ; y = 0
+add y w  ; y = d
+add y 13 ; y = d + 13
+mul y x  ; y = d + 13
+add z y  ; z = (f3(c) * 26) + d + 13
+
+f4(d) =
+f4(d) = 26 (26 (26 a + b + 276) + c) + d + 13
