@@ -23,11 +23,6 @@ const COST = {
 };
 
 const done = (positions: Positions): boolean => {
-  let hw = true;
-  for (let i = 0; i < 7; i++) {
-    hw = hw && positions.slots[0][i] === ".";
-  }
-
   let r = true;
   for (let i = 1; i < positions.slots.length; i++) {
     r =
@@ -38,7 +33,7 @@ const done = (positions: Positions): boolean => {
       positions.slots[i][3] === "D";
   }
 
-  return hw && r;
+  return r;
 };
 
 const canMoveUp = (
@@ -47,6 +42,38 @@ const canMoveUp = (
   roomPos: number,
   rowPos: number
 ): boolean => {
+  // is the room blocked?
+  for (let i = 1; i < rowPos; i++) {
+    if (positions.slots[i][roomPos] !== ".") {
+      return false;
+    }
+  }
+
+  /*
+  0 1 2 3 4 5 6
+     0 1 2 3 
+
+  0 + 2 => 1, 2
+  1 + 2 => 2, 3
+  2 + 2 => 3, 4
+  3 + 2 => 4, 5
+
+  */
+  let relativeRoomPos = roomPos + 2;
+  if (hwPos < relativeRoomPos) {
+    relativeRoomPos--;
+  }
+
+  // is the hallway blocked?
+  while (relativeRoomPos !== hwPos) {
+    if (positions.slots[0][relativeRoomPos] !== ".") {
+      return false;
+    }
+
+    relativeRoomPos += hwPos < relativeRoomPos ? -1 : 1;
+  }
+
+  // are we already done from this position?
   let finishedFromHere = true;
   for (let i = rowPos; i < positions.slots.length; i++) {
     if (ROOMS[positions.slots[i][roomPos]] !== roomPos) {
@@ -55,45 +82,7 @@ const canMoveUp = (
     }
   }
 
-  let blockedRoom = false;
-  for (let i = 1; i < rowPos; i++) {
-    if (positions.slots[i][roomPos] !== ".") {
-      blockedRoom = true;
-      break;
-    }
-  }
-
-  /*
-  0 1 2 3 4 5 6
-     0 1 2 3 
-
-  0 + 2 => 1, 2
-  1 + 2 => 2, 3
-  2 + 2 => 3, 4
-  3 + 2 => 4, 5
-
-  */
-  let relativeRoomPos = roomPos + 2;
-  if (hwPos < relativeRoomPos) {
-    relativeRoomPos--;
-  }
-
-  let blockedPath = false;
-  while (relativeRoomPos !== hwPos) {
-    if (positions.slots[0][relativeRoomPos] !== ".") {
-      blockedPath = true;
-      break;
-    }
-
-    relativeRoomPos += hwPos < relativeRoomPos ? -1 : 1;
-  }
-
-  return (
-    !finishedFromHere &&
-    !blockedRoom &&
-    !blockedPath &&
-    positions.slots[rowPos][roomPos] !== "."
-  );
+  return !finishedFromHere && positions.slots[rowPos][roomPos] !== ".";
 };
 
 const canMoveDown = (
@@ -102,21 +91,22 @@ const canMoveDown = (
   roomPos: number,
   rowPos: number
 ): boolean => {
-  const wrongKind = ROOMS[positions.slots[0][hwPos]] !== roomPos;
+  // wrong room?
+  if (ROOMS[positions.slots[0][hwPos]] !== roomPos) {
+    return false;
+  }
 
-  let shouldMove = true;
+  // is there another type down there?
   for (let i = rowPos + 1; i < positions.slots.length; i++) {
     if (ROOMS[positions.slots[i][roomPos]] !== roomPos) {
-      shouldMove = false;
-      break;
+      return false;
     }
   }
 
-  let blockedRoom = false;
+  // is the room blocked?
   for (let i = 1; i < rowPos + 1; i++) {
     if (positions.slots[i][roomPos] !== ".") {
-      blockedRoom = true;
-      break;
+      return false;
     }
   }
 
@@ -135,17 +125,16 @@ const canMoveDown = (
     relativeRoomPos--;
   }
 
-  let blockedPath = false;
+  // is the hallways blocked?
   while (relativeRoomPos !== hwPos) {
     if (positions.slots[0][relativeRoomPos] !== ".") {
-      blockedPath = true;
-      break;
+      return false;
     }
 
     relativeRoomPos += hwPos < relativeRoomPos ? -1 : 1;
   }
 
-  return !wrongKind && shouldMove && !blockedRoom && !blockedPath;
+  return true;
 };
 
 interface Move {
@@ -194,7 +183,6 @@ const cost = (move: Move, type: string): number => {
     6: 10,
   };
 
-  const multiplier = COST[type];
   const relativeA =
     move.toRow !== 0 ? ROOM_MAPPING[move.toPos] : HW_MAPPIONG[move.toPos];
   const relativeB =
@@ -202,7 +190,7 @@ const cost = (move: Move, type: string): number => {
 
   return (
     (Math.abs(relativeA - relativeB) + Math.abs(move.fromRow - move.toRow)) *
-    multiplier
+    COST[type]
   );
 };
 
@@ -258,6 +246,7 @@ const cacheKey = (positions: Positions): string => {
 const CACHE = new Map();
 const play = (positions: Positions): number => {
   const key = cacheKey(positions);
+  // already been here?
   const res = CACHE.get(key);
   if (res !== undefined) {
     return res;
@@ -278,11 +267,14 @@ const play = (positions: Positions): number => {
       slots.push([...positions.slots[i]]);
     }
 
+    // test a move
     const p: Positions = { slots };
     p.slots[m.toRow][m.toPos] = p.slots[m.fromRow][m.fromPos];
     p.slots[m.fromRow][m.fromPos] = ".";
 
     const played = c + play(p);
+
+    // choose branch with least cost
     if (played < min) {
       min = played;
     }
