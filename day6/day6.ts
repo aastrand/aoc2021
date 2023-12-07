@@ -28,5 +28,5 @@ const solve = (file: string, days: number): number => {
 assert(solve("./example.txt", 18) === 26);
 assert(solve("./example.txt", 80) === 5934);
 assert(solve("./example.txt", 256) === 26984457539);
-console.log(solve("./input.txt", 80));
-console.log(solve("./input.txt", 256));
+console.log(solve("../input/2021/day6.txt", 80));
+console.log(solve("../input/2021/day6.txt", 256));

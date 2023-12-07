@@ -328,6 +328,6 @@ const example = solve("./example.txt");
 assert(example[0] === 79);
 assert(example[1] === 3621);
 
-const puzzle = solve("./input.txt");
+const puzzle = solve("../input/2021/day19.txt");
 console.log(puzzle[0]);
 console.log(puzzle[1]);

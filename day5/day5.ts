@@ -36,7 +36,7 @@ const solve = (file: string, countDiagonals: boolean): number => {
 };
 
 assert(solve("./example.txt", false) === 5);
-console.log(solve("./input.txt", false));
+console.log(solve("../input/2021/day5.txt", false));
 
 assert(solve("./example.txt", true) === 12);
-console.log(solve("./input.txt", true));
+console.log(solve("../input/2021/day5.txt", true));

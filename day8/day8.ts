@@ -147,7 +147,7 @@ const solve2 = (file: string): number => {
 
 assert(solve1("./example.txt") === 26);
 
-console.log(solve1("./input.txt"));
+console.log(solve1("../input/2021/day8.txt"));
 
 assert(solve2("./example.txt") === 61229);
-console.log(solve2("./input.txt"));
+console.log(solve2("../input/2021/day8.txt"));

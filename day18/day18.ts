@@ -363,7 +363,7 @@ assert(magnitude(parseLine("[9,1]")) === 29);
 assert(magnitude(parseLine("[[9,1],[1,9]]")) === 129);
 
 assert(solve1("./example5.txt") === 4140);
-console.log(solve1("./input.txt"));
+console.log(solve1("../input/2021/day18.txt"));
 
 assert(solve2("./example5.txt") === 3993);
-console.log(solve2("./input.txt"));
+console.log(solve2("../input/2021/day18.txt"));

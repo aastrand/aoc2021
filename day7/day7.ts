@@ -40,11 +40,11 @@ const solve2 = (file: string): number => {
 };
 
 assert(solve1("./example.txt") === 37);
-console.log(solve1("./input.txt"));
+console.log(solve1("../input/2021/day7.txt"));
 
 assert(adjustedCost(11) === 66);
 assert(adjustedCost(4) === 10);
 assert(adjustedCost(5) === 15);
 
 assert(solve2("./example.txt") === 168);
-console.log(solve2("./input.txt"));
+console.log(solve2("../input/2021/day7.txt"));

@@ -459,6 +459,6 @@ m.toPos = 1;
 assert(cost(m, "B") === 20);
 
 assert(solve("./example.txt", false) === 12521);
-console.log(solve("./input.txt", false));
+console.log(solve("../input/2021/day23.txt", false));
 assert(solve("./example.txt", true) === 44169);
-console.log(solve("./input.txt", true));
+console.log(solve("../input/2021/day23.txt", true));

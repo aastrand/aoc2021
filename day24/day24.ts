@@ -77,4 +77,4 @@ const solve = (file: string): void => {
   console.log(p2.join(""));
 };
 
-solve("./input.txt");
+solve("../input/2021/day24.txt");

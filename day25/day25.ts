@@ -119,4 +119,4 @@ for (const line of grid.print("")) {
 console.log();
 
 assert(solve1("./example.txt") === 58);
-console.log(solve1("./input.txt"));
+console.log(solve1("../input/2021/day25.txt"));

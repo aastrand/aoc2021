@@ -127,7 +127,7 @@ const solve = (file: string, max?: number): number => {
 
 assert(solve("./example.txt", 50) === 39);
 assert(solve("./example2.txt", 50) === 590784);
-console.log(solve("./input.txt", 50));
+console.log(solve("../input/2021/day22.txt", 50));
 
 assert(sizeOf([10, 12, 10, 12, 10, 12]) === 27);
 assert(sizeOf([10, 10, 10, 10, 10, 10]) === 1);
@@ -135,4 +135,4 @@ assert(sizeOf([10, 10, 10, 10, 10, 10]) === 1);
 assert(solve("./example.txt") === 39);
 assert(solve("./example2.txt") === 39769202357779);
 assert(solve("./example3.txt") === 2758514936282235);
-console.log(solve("./input.txt"));
+console.log(solve("../input/2021/day22.txt"));

@@ -165,7 +165,7 @@ assert(board.isMarked(22) === true);
 assert(board.hasBingo() === true);
 
 assert(solve1("./example.txt") === 4512);
-console.log(solve1("./input.txt"));
+console.log(solve1("../input/2021/day4.txt"));
 
 assert(solve2("./example.txt") === 1924);
-console.log(solve2("./input.txt"));
+console.log(solve2("../input/2021/day4.txt"));

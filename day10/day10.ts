@@ -114,7 +114,7 @@ assert(out.stack.length === 1);
 assert(out.invalid === ")");
 
 assert(solve1("./example.txt") === 26397);
-console.log(solve1("./input.txt"));
+console.log(solve1("../input/2021/day10.txt"));
 
 assert(solve2("./example.txt") === 288957);
-console.log(solve2("./input.txt"));
+console.log(solve2("../input/2021/day10.txt"));

@@ -102,7 +102,7 @@ const solve = (file: string, steps: number): number => {
 };
 
 assert(solve("./example.txt", 10) === 1588);
-console.log(solve("./input.txt", 10));
+console.log(solve("../input/2021/day14.txt", 10));
 
 assert(solve("./example.txt", 40) === 2188189693529);
-console.log(solve("./input.txt", 40));
+console.log(solve("../input/2021/day14.txt", 40));

@@ -63,7 +63,7 @@ const solve = (file: string, iterations: number, def: string): number => {
 };
 
 assert(solve("./example.txt", 2, ".") === 35);
-console.log(solve("./input.txt", 2, "#"));
+console.log(solve("../input/2021/day20.txt", 2, "#"));
 
 assert(solve("./example.txt", 50, ".") === 3351);
-console.log(solve("./input.txt", 50, "#"));
+console.log(solve("../input/2021/day20.txt", 50, "#"));

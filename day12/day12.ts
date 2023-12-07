@@ -73,9 +73,9 @@ assert(isUpper("AA"));
 assert(solve1("./example.txt") === 10);
 assert(solve1("./example2.txt") === 19);
 assert(solve1("./example3.txt") === 226);
-console.log(solve1("./input.txt"));
+console.log(solve1("../input/2021/day12.txt"));
 
 assert(solve2("./example.txt") === 36);
 assert(solve2("./example2.txt") === 103);
 assert(solve2("./example3.txt") === 3509);
-console.log(solve2("./input.txt"));
+console.log(solve2("../input/2021/day12.txt"));
